@@ -70,6 +70,14 @@ def getGreedyAction(state):
     #if not we choose a random action from the list
     else: return random.choice(getActions(state))
 
+def getEGreedyAction(state, exploiting_rate):
+    #If the number generated is smaller than ours we use Greedy policy (exploiting)
+    if(random.randint(0, 1) > exploiting_rate):
+        return random.choice(getActions(state))
+    else:
+        #if not, we use our exploration policy
+        return getGreedyAction(state)
+
 def getRndState():
     return random.randint(0, height * width - 1)
 
@@ -96,16 +104,19 @@ def qlearning(s1, a, s2):
 
 
 # Episodes
+numberOfActions = 0
 for i in xrange(100):
     state = getRndState()
     while state != final_state:
-        action = getGreedyAction(state)
+        exploiting_rate = 0.9
+        action = getEGreedyAction(state, exploiting_rate)
         y = getStateCoord(state)[0] + actions_vectors[action][0]
         x = getStateCoord(state)[1] + actions_vectors[action][1]
         new_state = getState(y, x)
         qlearning(state, actions_list[action], new_state)
         state = new_state
-
+        numberOfActions = numberOfActions+1
+print "Número de acciones promedio en 100 episodios: ", numberOfActions/100
 print Q
 
 
