@@ -15,6 +15,12 @@ actions_list = {"UP": 0,
                 "DOWN": 2,
                 "LEFT": 3
                 }
+#the action-list dict inverted. This is needed when using Greedy/E-Greedy policies
+actions_list_inv = {0: "UP",
+                1: "RIGHT",
+                2: "DOWN",
+                3: "LEFT"
+                }
 
 actions_vectors = {"UP": (-1, 0),
                    "RIGHT": (0, 1),
@@ -54,6 +60,15 @@ def getActions(state):
 def getRndAction(state):
     return random.choice(getActions(state))
 
+def getGreedyAction(state):
+    y, x = getStateCoord(state)
+    actualState = getState(y, x)
+    #we are greedy when there is another value in the row > 0 (we are looking for the best reward)
+    if(np.amax(Q[actualState]) > 0):
+        #if so, we just have to return the action wich gives us the best reward
+        return actions_list_inv[np.argmax(Q[actualState])]
+    #if not we choose a random action from the list
+    else: return random.choice(getActions(state))
 
 def getRndState():
     return random.randint(0, height * width - 1)
@@ -84,7 +99,7 @@ def qlearning(s1, a, s2):
 for i in xrange(100):
     state = getRndState()
     while state != final_state:
-        action = getRndAction(state)
+        action = getGreedyAction(state)
         y = getStateCoord(state)[0] + actions_vectors[action][0]
         x = getStateCoord(state)[1] + actions_vectors[action][1]
         new_state = getState(y, x)
